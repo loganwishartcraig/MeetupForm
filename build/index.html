@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <title>Meetup Form</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <header class="page-header">
+      <h1>Meetup With Us ;)</h1>
+    </header>
+    <main class="content-wrapper">
+      <section class="registration">
+        <form id="regForm" class="invalid">
+          <div class="regForm-inputs two-col">
+            <div class="required-inputs">
+              <div class="form-group form-header">
+                <h2>Create your account</h2>
+              </div>
+              <div class="form-group">
+                <label for="name">
+                  <span class="input-label">What's Your <b>Full Name</b>?</span>
+                  <input id="name" name="name" class="form-input" type="text" placeholder="John Snow" autocomplete="name" x-autocompletetype="name-full" required autofocus="true" data-validation="text">
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="email">
+                  <span class="input-label">Your <b>Email</b>?</span>
+                  <input id="email" name="email" class="form-input" type="email" placeholder="john.snow@gmail.com" autocomplete="email" x-autocompletetype="email" required data-validation="email">
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="password">
+                  <span class="input-label">Make a <b>password</b>. It needs to have:</span>
+                  <ul class="pw-requirements">
+                    <li data-requirement="lower">At least one lower case character</li>
+                    <li data-requirement="upper">At least one upper case character</li>
+                    <li data-requirement="special">At least one special character or number</li>
+                    <li data-requirement="length">At least 8 characters</li>
+                  </ul>
+                  <input id="password" name="password" class="form-input" type="password" autocomplete="off" required data-validation="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+                </label>
+              </div>
+            </div>
+            <div class="optional-inputs">
+            <div class="form-group form-header">
+              <span>This section is <i>optional</i></span>
+            </div>
+              <div class="form-group two-col">
+
+                <label for="regBday">
+                  <span class="input-label optional">When were you born?</span>
+                  <input id="regBday" name="regBday" class="form-input" type="date" autocomplete="bday" x-autocompletetype="birthday" data-validation="date">
+                </label>
+
+                <label for="regSex">
+                  <span class="input-label optional">Your Gender</span>
+                  <ul class="radio-group row">
+                    <li>
+                      <input id="regSexF" name="regSex" class="form-input" type="radio" autocomplete="sex" x-autocompletetype="gender" value="F" data-validation="gender">
+                      <label for="regSexF" class="radio-label">Female</label>
+                    </li>
+                    <li>
+                      <input id="regSexM" name="regSex" class="form-input" type="radio" autocomplete="sex" x-autocompletetype="gender" value="M" data-validation="gender">
+                      <label for="regSexM" class="radio-label">Male</label>
+                    </li>
+                    <li>
+                      <input id="regSexO" name="regSex" class="form-input" type="radio" autocomplete="sex" x-autocompletetype="gender" value="O" data-validation="gender">
+                      <label for="regSexO" class="radio-label">Other</label>
+                    </li>
+                  </ul>
+                  <div class="radio-group">
+                  </div>
+                  <div class="radio-group">
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group two-col">
+                <label for="regCountry">
+                  <span class="input-label optional">What <b>country</b> do you live in?</span>
+                  <select id="regCountry" name="regCountry" class="form-select" autocomplete="country-name" x-autocompletetype="country" data-validation="country">
+                    <option value="" selected disabled>Select a country</option>
+                    <option value="US">United States of America</option>
+                  </select>
+                </label>
+                <label for="regState">
+                  <span class="input-label optional">And <b>state</b>?</span>
+                  <select id="regState" name="regState" class="form-select" autocomplete="state" x-autocompletetype="state" data-validation="state">
+                    <option value="" selected disabled>Select a state</option>
+                    <option value="CA">California</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="form-group two-col">
+                <label for="regEmployer">
+                  <span class="input-label optional">Where do you <b>work</b>?</span>
+                  <input id="regEmployer" name="regEmployer" class="form-input" type="text" autocomplete="off" data-validation="text">
+                </label>
+                <label for="regIndustry">
+                  <span class="input-label optional">What <b>industry</b> do you work in?</span>
+                  <select id="regIndustry" name="regIndustry" class="form-select" autocomplete="off" data-validation="text">
+                    <option value="" selected disabled>Select an industry</option>
+                    <option value="MKTG">Marketing</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label for="regJobTitle">
+                  <span class="input-label optional">What's your <b>job title</b>?</span>
+                  <input id="regJobTitle" name="regJobTitle" class="form-input" list="jobTitleList" autocomplete="off" data-validation="text">
+                  <datalist id="jobTitleList">
+                    <option value="Account Manager"></option>
+                    <option value="Web Developer"></option>
+                  </datalist>
+                </label>
+              </div>
+              <div class="form-group">
+                <button class="block-center std-submit" type="submit" disabled>Register!</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </section>
+      <section class="meetup two-col">
+        <div class="meetup-form">
+          <form id="meetupForm">
+
+            <div class="form-group form-header">
+              <h2>Create an Event</h2>
+            </div>
+            <div class="form-group two-col">
+              <label for="eventName">
+                <span class="input-label"><b>Name</b> your event</span>
+                <input id="eventName" name="eventName" class="form-input" type="text" placeholder="Super Fun Thymes" autocomplete="off" x-autcompletetype="none" data-validation="text" required>
+              </label>
+              <label for="eventHost">
+                <span class="input-label">Whos's <b>hosting</b> it?</span>
+                <input id="eventHost" name="eventHost" class="form-input" type="text" placeholder="John Snow" autocomplete="off" x-autcompletetype="none" data-validation="text" required>
+              </label>
+            </div>
+            <div class="form-group two-col">
+              <label for="eventType">
+                <span class="input-label">What <b>kind</b> of event?</span>
+                <input id="eventType" autocomplete="off" x-autocomplete="off" placeholder="Party" name="eventType" class="form-input" list="eventTypes" data-validation="text" required>
+              </label>
+              <datalist id="eventTypes">
+                <option value="Party"></option>
+              </datalist>
+              <label for="eventLocation">
+                <span class="input-label"><b>Where's</b> it held?</span>
+                <input id="eventLocation" name="eventLocation" class="form-input" type="text" autocomplete="off" x-autocomplete="off" data-validation="text" placeholder="High Garden" required>
+              </label>
+            </div>
+
+            <div class="form-group two-col">
+              <label for="eventStart">
+                <span class="input-label">When does it <b>start</b>?</span>
+                <input id="eventStart" name="eventStart" class="form-input" type="datetime-local" autocomplete="off" x-autocompletetype="false" data-validation="datetime" required>
+              </label>
+              <label for="eventEnd">
+                <span class="input-label">And <b>end</b>?</span>
+                <input id="eventEnd" name="eventEnd" class="form-input" type="datetime-local" autocomplete="off" x-autocompletetype="false" data-validation="datetime" required>
+              </label>
+            </div>
+            <div class="form-group">
+              <div class="event-invites">
+                <label for="guestList">
+                  <span class="input-label">Any <b>guests</b> to invite?</span>
+                  <div class="guest-input row">
+                  <input id="eventGuestList" name="eventGuestList" class="form-input" type="text" autocomplete="off" x-autcompletetype="none" data-validation="eventGuestList" placeholder="Sanza Stark">
+                  <button class="add-guest" type="button">Add guest</button>
+                  </div>
+                </label>
+                <ul class="invite-list"></ul>
+              </div>
+            </div>
+            <div class="form-group">
+<label for="eventMessage">
+                <span class="input-label optional">Add a <b>message</b> to your event? <i>(optional)</i></span>
+                <textarea id="eventMessage" name="eventMessage" class="form-input" autocomplete="off" x-autocomplete="off" data-validation="text"></textarea>
+              </label>
+            </div>
+          
+        
+            <div class="form-group">
+              <button class="block-center std-submit" type="submit" disabled>Set it Up</button>
+            </div>
+          </form>
+        </div>
+        <div class="meetup-list">
+          
+            <h2 class="meetup-header">Active Meetups!</h2>
+          
+          <ul class="meetup-items">
+            <li class="default">No items :/</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="js/entry.js"></script>
+</body>
+
+</html>
