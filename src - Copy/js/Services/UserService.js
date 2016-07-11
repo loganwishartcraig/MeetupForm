@@ -1,46 +1,29 @@
-import { fakeAJAXCall } from '../Util/fakeAJAXCall';
-
-// Used to manage and access the user object.
-// Would be used to interface with the user routes.
 class UserService {
-
-    // if no user is passed at initalization,
-    // query local storage for cached object
     constructor(user) {
       if (user === undefined) {
         let cachedProfile = localStorage.getItem('userProfile');
-        if (cachedProfile !== undefined) this._user = JSON.parse(cachedProfile);
+        if (cachedProfile !== undefined) this.user = JSON.parse(cachedProfile);
       }
     }
 
     updateUserProfile(profile) {
-      this._user = profile;
+      this.user = profile;
       localStorage.setItem('userProfile', JSON.stringify(profile));
     }
 
     clearUserProfile() {
-      this._user = undefined;
+      this.user = undefined;
       localStorage.removeItem('userProfile');
     }
 
     getProfile() {
-      return this._user;
+      return this.user;
     }
 
     hasUser() {
-      return this._user !== null;
-    }
-
-    // simulates POSTing an event via AJAX
-    addEvent(event) {
-      fakeAJAXCall(event).then(function(msg) {
-        console.log('success: ', msg);
-      }, function() {
-        console.log('fail: ', msg);
-      }); 
+      return this.user !== null;
     }
   
-    // returns fake events for testing
     getEvents() {
       let e1 = {
         eventEnd: "2016-06-16",

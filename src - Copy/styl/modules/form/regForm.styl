@@ -1,0 +1,95 @@
+
+// keeps optional inputs hidden when form is invalid
+#regForm.invalid {
+  & .optional-inputs {
+    // display: none;
+    opacity: 0.01;
+    transform: translateX(-50%);
+    transition: transform, opacity, .3s, ease-in-out
+
+    overflow: hidden;
+  }
+
+  & .required-inputs {
+    transition: transform, .3s, ease-in-out
+    transform: translateX(50%);
+  }
+
+}
+
+
+// toggles optioal inputs visability on valid reg form
+#regForm.valid{ 
+
+  & .optional-inputs {
+    opacity: 1;
+    transform: translateX(0%);
+    transition: transform, opacity, .3s, ease-in-out
+
+  }
+
+  & .required-inputs {
+    transition: transform, .3s, ease-in-out
+
+    transform: translateX(0%);
+  }
+
+}
+
+
+// spacing for input containers
+.regForm-inputs {
+
+  width: 100%;
+
+  & .required-inputs, .optional-inputs {
+    padding: 0 1rem;
+    box-sizing: border-box;
+    position: relative;
+     margin: 0 1rem;
+    background: white;
+    border: 1px solid #b3e8ea;
+  }
+
+  & .required-inputs {
+    z-index: 2;
+  }
+
+  & .optional-inputs {
+    z-index: 0;
+  }
+}
+
+
+
+
+.pw-requirements {
+
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+
+    & > li::before {
+      content: '– '
+    }
+
+    & > li.met {
+       color: #54e054;
+        &::before {
+          content: '✓ ';
+      }
+    }
+
+    & > li.unmet {
+      color: red;
+
+      &::before {
+        content: "– "
+      }
+    }
+
+}
+
+
+.radio-group {
+  margin: .4rem 0;
+}

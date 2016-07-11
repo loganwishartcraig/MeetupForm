@@ -1,200 +1,66 @@
-import { fakeAJAXCall } from '../Util/fakeAJAXCall';
-
+// Controller for forms will notify the model of any 
+// updates to the view.
+// View will emmit input changes, controller passes data
+// to model & the model validates and stores. Model notifies if the data
+// is valid, and view will update 'valid'/'invalid' input node attribute accordingly
+// Controller also handles resets.
 
 class FormController {
+  constructor(model, view) {
+    this._model = model;
+    this._view = view;
 
-    constructor(root, validationMap = {}, dataPullers = {}) {
+    // Grab 'required' inputs from the view and set in the model
+    // for validation purposes 
+    // For some reason, I want the 'required' flag to stay in the markup and not have to be pre-defined in the model? Should it be the other way around?
+    this._model.setRequired(this._view.getRequired());
 
-      this.form = document.querySelector(root);
+    // when inputs are changd, set the item in the model and
+    // revalidate the form
+    this._view.inputChanged.attach(function(inputData) {
+      this.setItem(inputData.name, inputData.value, inputData.validationType);
+      this.checkFormValidity();
+    }.bind(this));
 
-      this.form.addEventListener('submit', this.handleSubmit.bind(this));
-      this.form.addEventListener('change', this.handleChange.bind(this));
-      this.form.addEventListener('keyup', this.handleChange.bind(this));
-
-      this.inputs = this.form.querySelectorAll(':scope input, :scope select, :scope textarea');
-      this.required = this.form.querySelectorAll(':scope input:required, :scope select:required, :scope textarea:required');
-      this.submit = this.form.querySelector(':scope button[type=submit]');
-
-      this.valid = false;
-      this.validationMap = validationMap;
-
-      this.dataStore = {};
-      this.dataPullers = dataPullers;
-
-    }
-
-    handleSubmit(evt) {
-      evt.preventDefault();
-      if (this.validateForm()) {
-        console.log('would be submitting data...', this.dataStore);
-
-
-
-        fakeAJAXCall(this.dataStore).then(function(user) {
-          if (this.submitCallback !== undefined) this.submitCallback(user);
-        }.bind(this), () => {
-          console.log('Error transmitting data');
-        });
+    // when form is submitted, check if its valid, submit and reset if so.
+    this._view.formSubmitted.attach(function() {
+      if (this._model.isValid()) {
+        this.submitForm();
+        this.reset();
       } else {
-        console.log("form isn't valid yet.");
+        console.log('tried to submit, but form was invalid');
       }
-    }
-
-
-    setSubmitCallback(funct) {
-      this.submitCallback = funct;
-    }
-
-    getData() {
-      return this.dataStore;
-    }
-
-
-    // called twice on keypress events...
-    handleChange(evt) {
-
-      if ((evt.target.tagName === 'INPUT') || (evt.target.tagName === 'SELECT')) {
-        let validity = this.validate(evt.target);
-        this.updateDataStore(evt.target, validity);
-        this.checkFormValidity();
-      }
-
-    }
-
-
-
-    checkFormValidity() {
-
-
-      // this should be better managed
-      let validRequired = this.form.querySelectorAll(':scope input:required[valid], :scope select:required[valid], :scope textarea:required[valid]').length;
-
-      let valid = validRequired === this.required.length;
-
-
-      return this.toggleValiditiy(this.submit, valid);
-    }
-
-    isValid() {
-      return this.valid;
-    }
-
-    toggleValiditiy(node, valid) {
-      if (valid) {
-        this.enable(node);
-      } else {
-        this.disable(node);
-      }
-    }
-
-    enable(node) {
-
-      this.valid = true;
-
-      if (this.form.classList.contains('invalid')) {
-        this.form.classList.remove('invalid');
-        this.form.classList.add('valid');
-      }
-
-      if (node.hasAttribute('disabled'))
-        node.removeAttribute('disabled');
-    }
-
-    disable(node) {
-
-      this.valid = false;
-
-      if (this.form.classList.contains('valid')) {
-        this.form.classList.remove('valid');
-        this.form.classList.add('invalid');
-      }
-
-
-      if (!node.hasAttribute('disabled'))
-        node.setAttribute('disabled', 'disabled');
-    }
-
-    validate(input) {
-      let validity = this.validateInput(input);
-      this.markValidity(input, validity);
-      return validity;
-    }
-
-    validateInput(input) {
-
-      if (!input.hasAttribute('data-validation')) return true;
-      
-      let validationType = input.getAttribute('data-validation');
-      let value = input.value;
-
-      if (this.validationMap[validationType] === undefined) {
-        console.warn(`Validation map doesn't have validator for '${validationType}'.`);
-        return true;
-      }
-
-      return this.validationMap[validationType](value);
-    }
-
-    markValidity(node, valid) {
-      let attrToRemove = (valid) ? 'invalid' : 'valid';
-      let attrToAdd = (valid) ? 'valid' : 'invalid';
-      node.removeAttribute(attrToRemove);
-      node.setAttribute(attrToAdd, attrToAdd);
-
-    }
-
-    updateDataStore(input, valid) {
-
-      let key = input.getAttribute('name');
-      let data = (this.dataPullers[key] === undefined) ? input.value : this.dataPullers[key]();
-
-      console.log(data, key)
-
-      if (valid) {
-        this.dataStore[key] = data;
-      } else {
-        if (this.dataStore[key] !== undefined) delete this.dataStore[key];
-      }
-    }
-
-    validateForm() {
-
-      let formValidity = true;
-
-      for (let i = 0; i < this.inputs.length; i++) {
-        let input = this.inputs[i];
-        if ((input.hasAttribute('required')) || (input.value.length > 0)) {
-          let inputValidity = this.validate(input);
-          formValidity = (formValidity === false) ? false : inputValidity;          
-        }
-      }
-
-      return formValidity;
-    }
-
-    setValidator(type, validator) {
-      if (this.validationMap[type] !== undefined) console.warn(`A validation method for ${type} already exists. Overwriting...`);
-
-      this.validationMap[type] = validator;
-    }
-
-    setDataPuller(name, funct) {
-      if (this.dataPullers[name] !== undefined) console.warn(`A data pull method for ${name} already exists. Overwriting...`);
-      this.dataPullers[name] = funct;
-    }
-
-    reset() {
-
-      for (let i = 0; i < this.inputs.length; i++) {
-        let input = this.inputs[i];
-        input.removeAttribute('valid');
-        input.removeAttribute('invalid');
-        input.value = '';
-      }
-      this.dataStore = {};
-      this.valid = false;
-    }
+    }.bind(this));
 
   }
 
-  export { FormController };
+  // sets item in model.
+  // expects string "name" as key in model,
+  // value as value to store
+  // vtype as string indicating validation key in validation map
+  // triggers models change & item valididty events
+  setItem(name, value, vtype) {
+    this._model.setItem(name, value, vtype);
+  }
+
+  // validate current form model.
+  // triggers models form validity event
+  checkFormValidity() {
+    this._model.validate();
+  }
+
+  // triggers models submitted event
+  submitForm() {
+    this._model.submit();
+  }
+
+  // clear model and view, reset required inputs
+  reset() {
+    this._view.clear();
+    this._model.clear();
+    this._model.setRequired(this._view.getRequired());
+  }
+
+}
+
+export { FormController };

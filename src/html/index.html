@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="css/index.css">
 </head>
 
-<body>
+<body class="unregistered">
   <div class="page-wrapper">
     <header class="page-header">
       <h1>Meetup With Us ;)</h1>
@@ -136,11 +136,11 @@
             </div>
             <div class="form-group two-col">
               <label for="eventName">
-                <span class="input-label"><b>Name</b> your event</span>
+                <span class="input-label">Give your event a <b>title</b>.</span>
                 <input id="eventName" name="eventName" class="form-input" type="text" placeholder="Super Fun Thymes" autocomplete="off" x-autcompletetype="none" data-validation="text" required>
               </label>
               <label for="eventHost">
-                <span class="input-label">Whos's <b>hosting</b> it?</span>
+                <span class="input-label">Whos's the <b>host</b>?</span>
                 <input id="eventHost" name="eventHost" class="form-input" type="text" placeholder="John Snow" autocomplete="off" x-autcompletetype="none" data-validation="text" required>
               </label>
             </div>
@@ -165,7 +165,7 @@
               </label>
               <label for="eventEnd">
                 <span class="input-label">And <b>end</b>?</span>
-                <input id="eventEnd" name="eventEnd" class="form-input" type="datetime-local" autocomplete="off" x-autocompletetype="false" data-validation="datetime" required>
+                <input id="eventEnd" name="eventEnd" class="form-input" type="datetime-local" autocomplete="off" x-autocompletetype="false" data-validation="eventEnd" required>
               </label>
             </div>
             <div class="form-group">
@@ -173,7 +173,7 @@
                 <label for="guestList">
                   <span class="input-label">Any <b>guests</b> to invite?</span>
                   <div class="guest-input row">
-                  <input id="eventGuestList" name="eventGuestList" class="form-input" type="text" autocomplete="off" x-autcompletetype="none" data-validation="eventGuestList" placeholder="Sanza Stark">
+                  <input id="eventGuestList" name="eventGuestList" class="form-input" type="text" autocomplete="off" x-autcompletetype="none" data-validation="eventGuestList" placeholder="Sanza Stark" data-required='required'>
                   <button class="add-guest" type="button">Add guest</button>
                   </div>
                 </label>
