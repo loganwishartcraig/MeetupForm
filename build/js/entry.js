@@ -141,7 +141,7 @@
 	    // ? question - handled better by the controller? Where should ajax calls be made to the server?
 	    regFormModel.formSubmitted.attach(function (user) {
 	      console.log('submitted user data!', user);
-	      userService.updateUserProfile(user);
+	      userService.createUser(user);
 	      pageView.toggleRegistration(userService.hasUser());
 	    });
 	  }
@@ -170,7 +170,9 @@
 
 	  // on guestlist change, update the meetup form model and revalidate
 	  guestListModel.guestListChanged.attach(function (guests) {
+	    console.log('guest list chagned hanlder: ', guests);
 	    meetupFormModel.setItem('eventGuestList', guests, 'eventGuestList');
+	    console.log(meetupFormModel._store);
 	    meetupFormController.checkFormValidity();
 	  });
 
@@ -184,6 +186,7 @@
 	    console.log('submitted event data!', event);
 	    meetupListModel.addEvent(event);
 	    userService.addEvent(event);
+
 	    // ? question - should this be one reset?
 	    guestListController.reset();
 	    meetupFormController.reset();
@@ -276,6 +279,20 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+	var defaultUser = {
+	  name: '',
+	  email: '',
+	  password: '',
+	  birthDate: '',
+	  country: '',
+	  state: '',
+	  sex: '',
+	  industry: '',
+	  employer: '',
+	  jobTitle: '',
+	  events: []
+	};
+
 	// Used to manage and access the user object.
 	// Would be used to interface with the user routes.
 
@@ -283,26 +300,41 @@
 
 	  // if no user is passed at initalization,
 	  // query local storage for cached object
+	  // complete user object would not be stored in production 'i.e. no "password" field.'
 
 	  function UserService(user) {
 	    _classCallCheck(this, UserService);
 
 	    if (user === undefined) {
 	      var cachedProfile = localStorage.getItem('userProfile');
-	      if (cachedProfile !== undefined) this._user = JSON.parse(cachedProfile);
+	      if (cachedProfile !== null) {
+	        this._user = JSON.parse(cachedProfile);
+	      } else {
+	        this._user = null;
+	      }
 	    }
 	  }
 
+	  // creates user profile, then posts to server
+
+
 	  _createClass(UserService, [{
-	    key: 'updateUserProfile',
-	    value: function updateUserProfile(profile) {
-	      this._user = profile;
-	      localStorage.setItem('userProfile', JSON.stringify(profile));
+	    key: 'createUser',
+	    value: function createUser(profile) {
+	      this._user = Object.assign(defaultUser, profile);
+	      (0, _fakeAJAXCall.fakeAJAXCall)(this._user).then(function (msg) {
+	        this.updateCache(msg);
+	      }.bind(this));
+	    }
+	  }, {
+	    key: 'updateCache',
+	    value: function updateCache() {
+	      localStorage.setItem('userProfile', JSON.stringify(this._user));
 	    }
 	  }, {
 	    key: 'clearUserProfile',
 	    value: function clearUserProfile() {
-	      this._user = undefined;
+	      this._user = Object.assign({}, defaultUser);
 	      localStorage.removeItem('userProfile');
 	    }
 	  }, {
@@ -321,9 +353,11 @@
 	  }, {
 	    key: 'addEvent',
 	    value: function addEvent(event) {
-	      (0, _fakeAJAXCall.fakeAJAXCall)(event).then(function (msg) {
-	        console.log('success: ', msg);
-	      }, function () {
+	      (0, _fakeAJAXCall.fakeAJAXCall)(event).then(function (event) {
+	        console.log('success: ', event);
+	        this._user.events.push(event);
+	        this.updateCache();
+	      }.bind(this), function (msg) {
 	        console.log('fail: ', msg);
 	      });
 	    }
@@ -482,6 +516,7 @@
 	          this.itemInvalid.notify(key);
 	        }
 	      }
+	      console.log(this._store);
 	      // this.itemSet.notify(this._store);
 	    }
 	  }, {
@@ -551,6 +586,7 @@
 	    key: 'submit',
 	    value: function submit() {
 	      if (this.isValid()) {
+	        console.log('submitting: ', this._store);
 	        (0, _fakeAJAXCall.fakeAJAXCall)(this._store).then(function (msg) {
 	          this.formSubmitted.notify(msg);
 	        }.bind(this));
@@ -731,6 +767,12 @@
 	    value: function handleChange(evt) {
 
 	      if (evt.target.tagName === 'INPUT' || evt.target.tagName === 'SELECT' || evt.target.tagName === 'TEXTAREA') {
+
+	        // used because form model would update on 'event guest list' input change
+	        // and pass the value in the input as the 'eventGuestList' value instead of using
+	        // the array that's managed by the 'GuestList' components.
+	        // The fact this is here I believe indicates I've done something incorrect.
+	        if (evt.target.hasAttribute('data-ignore')) return;
 
 	        var inputData = {
 	          name: evt.target.getAttribute('name'),
@@ -973,9 +1015,11 @@
 	  _createClass(GuestListModel, [{
 	    key: 'addGuest',
 	    value: function addGuest(name) {
+	      console.log('adding ', name);
 	      if (name === '') return;
 	      this._guestList.push(name);
 	      this.guestAdded.notify(name);
+	      console.log('have list ', this._guestList);
 	      this.guestListChanged.notify(this._guestList);
 	    }
 
@@ -1058,6 +1102,11 @@
 	    this._addBtn.addEventListener('click', this.handleAdd.bind(this));
 	    this._input.addEventListener('keypress', this.handleKeypress.bind(this));
 
+	    // used so form view doesn't validate & store the text input;
+	    this._input.addEventListener('change', function (evt) {
+	      evt.stopPropagation();
+	    });
+
 	    // when model notifys guest was added, add to view
 	    this._model.guestAdded.attach(function (name) {
 	      this.addGuest(name);
@@ -1085,7 +1134,11 @@
 	  }, {
 	    key: 'handleKeypress',
 	    value: function handleKeypress(evt) {
-	      console.log(evt);
+	      evt.stopPropagation();
+	      if (evt.charCode === 13) {
+	        evt.preventDefault();
+	        this.handleAdd(evt);
+	      }
 	    }
 
 	    // when remove output container clicked, check if
@@ -1235,11 +1288,6 @@
 
 	    this._store = store;
 	    this.eventAdded = new _Event.Event(this);
-
-	    this._store.forEach(function (event) {
-	      console.log('adding Event', event);
-	      this.addEvent(event);
-	    }.bind(this));
 	  }
 
 	  // would POST data to server using user service
@@ -1308,10 +1356,11 @@
 	      this.addEvent(event);
 	    }.bind(this));
 
-	    // used to populate any existing model items (may not have been listening when they were added, before instantiation)
-	    // this._model.getEvents().forEach(function(event) {
-	    //   this.addEvent(event);
-	    // }.bind(this));
+	    // used to populate any existing model items
+	    // ? question - does this belong here? would it be better in a controller?
+	    this._model.getEvents().forEach(function (event) {
+	      this.addEvent(event);
+	    }.bind(this));
 	  }
 
 	  // toggles visability on the default item

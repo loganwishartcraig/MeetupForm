@@ -51,24 +51,24 @@
             </div>
               <div class="form-group two-col">
 
-                <label for="regBday">
+                <label for="birthDate">
                   <span class="input-label optional">When were you born?</span>
-                  <input id="regBday" name="regBday" class="form-input" type="date" autocomplete="bday" x-autocompletetype="birthday" data-validation="date">
+                  <input id="birthDate" name="birthDate" class="form-input" type="date" autocomplete="bday" x-autocompletetype="birthday" data-validation="date">
                 </label>
 
-                <label for="regSex">
+                <label for="sex">
                   <span class="input-label optional">Your Gender</span>
                   <ul class="radio-group row">
                     <li>
-                      <input id="regSexF" name="regSex" class="form-input" type="radio" autocomplete="sex" x-autocompletetype="gender" value="F" data-validation="gender">
+                      <input id="regSexF" name="sex" class="form-input" type="radio" autocomplete="sex" x-autocompletetype="gender" value="F" data-validation="gender">
                       <label for="regSexF" class="radio-label">Female</label>
                     </li>
                     <li>
-                      <input id="regSexM" name="regSex" class="form-input" type="radio" autocomplete="sex" x-autocompletetype="gender" value="M" data-validation="gender">
+                      <input id="regSexM" name="sex" class="form-input" type="radio" autocomplete="sex" x-autocompletetype="gender" value="M" data-validation="gender">
                       <label for="regSexM" class="radio-label">Male</label>
                     </li>
                     <li>
-                      <input id="regSexO" name="regSex" class="form-input" type="radio" autocomplete="sex" x-autocompletetype="gender" value="O" data-validation="gender">
+                      <input id="regSexO" name="sex" class="form-input" type="radio" autocomplete="sex" x-autocompletetype="gender" value="O" data-validation="gender">
                       <label for="regSexO" class="radio-label">Other</label>
                     </li>
                   </ul>
@@ -80,16 +80,16 @@
               </div>
 
               <div class="form-group two-col">
-                <label for="regCountry">
+                <label for="country">
                   <span class="input-label optional">What <b>country</b> do you live in?</span>
-                  <select id="regCountry" name="regCountry" class="form-select" autocomplete="country-name" x-autocompletetype="country" data-validation="country">
+                  <select id="country" name="country" class="form-select" autocomplete="country-name" x-autocompletetype="country" data-validation="country">
                     <option value="" selected disabled>Select a country</option>
                     <option value="US">United States of America</option>
                   </select>
                 </label>
-                <label for="regState">
+                <label for="state">
                   <span class="input-label optional">And <b>state</b>?</span>
-                  <select id="regState" name="regState" class="form-select" autocomplete="state" x-autocompletetype="state" data-validation="state">
+                  <select id="state" name="state" class="form-select" autocomplete="state" x-autocompletetype="state" data-validation="state">
                     <option value="" selected disabled>Select a state</option>
                     <option value="CA">California</option>
                   </select>
@@ -97,13 +97,13 @@
               </div>
 
               <div class="form-group two-col">
-                <label for="regEmployer">
+                <label for="employer">
                   <span class="input-label optional">Where do you <b>work</b>?</span>
-                  <input id="regEmployer" name="regEmployer" class="form-input" type="text" autocomplete="off" data-validation="text">
+                  <input id="employer" name="employer" class="form-input" type="text" autocomplete="off" data-validation="text">
                 </label>
-                <label for="regIndustry">
+                <label for="industry">
                   <span class="input-label optional">What <b>industry</b> do you work in?</span>
-                  <select id="regIndustry" name="regIndustry" class="form-select" autocomplete="off" data-validation="text">
+                  <select id="industry" name="industry" class="form-select" autocomplete="off" data-validation="text">
                     <option value="" selected disabled>Select an industry</option>
                     <option value="MKTG">Marketing</option>
                   </select>
@@ -111,9 +111,9 @@
               </div>
 
               <div class="form-group">
-                <label for="regJobTitle">
+                <label for="jobTitle">
                   <span class="input-label optional">What's your <b>job title</b>?</span>
-                  <input id="regJobTitle" name="regJobTitle" class="form-input" list="jobTitleList" autocomplete="off" data-validation="text">
+                  <input id="jobTitle" name="jobTitle" class="form-input" list="jobTitleList" autocomplete="off" data-validation="text">
                   <datalist id="jobTitleList">
                     <option value="Account Manager"></option>
                     <option value="Web Developer"></option>
@@ -173,7 +173,7 @@
                 <label for="guestList">
                   <span class="input-label">Any <b>guests</b> to invite?</span>
                   <div class="guest-input row">
-                  <input id="eventGuestList" name="eventGuestList" class="form-input" type="text" autocomplete="off" x-autcompletetype="none" data-validation="eventGuestList" placeholder="Sanza Stark" data-required='required'>
+                  <input id="eventGuestList" name="eventGuestList" class="form-input" type="text" autocomplete="off" x-autcompletetype="none" data-validation="eventGuestList" placeholder="Sanza Stark" data-required='required' data-ignore="true">
                   <button class="add-guest" type="button">Add guest</button>
                   </div>
                 </label>

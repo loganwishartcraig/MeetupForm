@@ -26,6 +26,11 @@ class GuestListView {
     this._addBtn.addEventListener('click', this.handleAdd.bind(this));
     this._input.addEventListener('keypress', this.handleKeypress.bind(this));
 
+    // used so form view doesn't validate & store the text input;
+    this._input.addEventListener('change', function(evt) {
+      evt.stopPropagation();
+    })
+
     // when model notifys guest was added, add to view
     this._model.guestAdded.attach(function(name) {
       this.addGuest(name);
@@ -48,7 +53,11 @@ class GuestListView {
 
   // when 'enter' is hit on input, handle add.
   handleKeypress(evt) {
-    console.log(evt);
+    evt.stopPropagation();
+    if (evt.charCode === 13) {
+      evt.preventDefault();
+      this.handleAdd(evt);
+    }
   }
 
   // when remove output container clicked, check if

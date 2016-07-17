@@ -16,9 +16,11 @@ class GuestListModel {
 
   // add string 'name' to store, notify.
   addGuest(name) {
+    console.log('adding ', name);
     if (name === '') return;
     this._guestList.push(name);
     this.guestAdded.notify(name);
+    console.log('have list ', this._guestList);
     this.guestListChanged.notify(this._guestList);
   }
 

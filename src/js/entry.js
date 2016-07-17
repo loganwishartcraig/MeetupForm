@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // ? question - handled better by the controller? Where should ajax calls be made to the server?
         regFormModel.formSubmitted.attach((user) => {
           console.log('submitted user data!', user);
-          userService.updateUserProfile(user);
+          userService.createUser(user);
           pageView.toggleRegistration(userService.hasUser());
         });
 
@@ -96,7 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // on guestlist change, update the meetup form model and revalidate
       guestListModel.guestListChanged.attach(function(guests) {
+        console.log('guest list chagned hanlder: ', guests);
         meetupFormModel.setItem('eventGuestList', guests, 'eventGuestList');
+        console.log(meetupFormModel._store);
         meetupFormController.checkFormValidity();
       });
 
@@ -111,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('submitted event data!', event);
         meetupListModel.addEvent(event);
         userService.addEvent(event);
+
         // ? question - should this be one reset?
         guestListController.reset();
         meetupFormController.reset();

@@ -65,6 +65,7 @@ class FormModel {
       }
     
     }
+    console.log(this._store);
     // this.itemSet.notify(this._store);
   }
 
@@ -77,7 +78,7 @@ class FormModel {
       delete this._store[key];
 
     }
-
+    
   }
 
   // Validates all required inputs and toggle
@@ -127,6 +128,7 @@ class FormModel {
   // notify form was submitted
   submit() {
     if (this.isValid()) {
+      console.log('submitting: ', this._store);
       fakeAJAXCall(this._store).then(function(msg) {
         this.formSubmitted.notify(msg);
       }.bind(this));

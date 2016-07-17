@@ -1,25 +1,52 @@
 import { fakeAJAXCall } from '../Util/fakeAJAXCall';
 
+let defaultUser = {
+            name: '',
+            email: '',
+            password: '',
+            birthDate: '',
+            country: '',
+            state: '',
+            sex: '',
+            industry: '',
+            employer: '',
+            jobTitle: '',
+            events: []
+          };
+
 // Used to manage and access the user object.
 // Would be used to interface with the user routes.
 class UserService {
 
     // if no user is passed at initalization,
     // query local storage for cached object
+    // complete user object would not be stored in production 'i.e. no "password" field.'
     constructor(user) {
       if (user === undefined) {
         let cachedProfile = localStorage.getItem('userProfile');
-        if (cachedProfile !== undefined) this._user = JSON.parse(cachedProfile);
+        if (cachedProfile !== null) {
+          this._user = JSON.parse(cachedProfile);
+        } else {
+          this._user = null;
+        }
       }
     }
 
-    updateUserProfile(profile) {
-      this._user = profile;
-      localStorage.setItem('userProfile', JSON.stringify(profile));
+
+    // creates user profile, then posts to server
+    createUser(profile) {
+      this._user = Object.assign(defaultUser, profile);
+      fakeAJAXCall(this._user).then(function(msg) {
+        this.updateCache(msg);
+      }.bind(this));
+    }
+
+    updateCache() {
+      localStorage.setItem('userProfile', JSON.stringify(this._user));
     }
 
     clearUserProfile() {
-      this._user = undefined;
+      this._user = Object.assign({}, defaultUser);
       localStorage.removeItem('userProfile');
     }
 
@@ -33,9 +60,11 @@ class UserService {
 
     // simulates POSTing an event via AJAX
     addEvent(event) {
-      fakeAJAXCall(event).then(function(msg) {
-        console.log('success: ', msg);
-      }, function() {
+      fakeAJAXCall(event).then(function(event) {
+        console.log('success: ', event);
+        this._user.events.push(event);
+        this.updateCache();
+      }.bind(this), function(msg) {
         console.log('fail: ', msg);
       }); 
     }

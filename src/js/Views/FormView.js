@@ -80,6 +80,13 @@ class FormView {
 
     if ((evt.target.tagName === 'INPUT') || (evt.target.tagName === 'SELECT') || (evt.target.tagName === 'TEXTAREA')) {
 
+
+      // used because form model would update on 'event guest list' input change
+      // and pass the value in the input as the 'eventGuestList' value instead of using
+      // the array that's managed by the 'GuestList' components.
+      // The fact this is here I believe indicates I've done something incorrect.
+      if (evt.target.hasAttribute('data-ignore')) return;
+
       let inputData = {
         name: evt.target.getAttribute('name'),
         value: evt.target.value,
