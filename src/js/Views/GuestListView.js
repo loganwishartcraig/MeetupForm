@@ -29,7 +29,7 @@ class GuestListView {
     // used so form view doesn't validate & store the text input;
     this._input.addEventListener('change', function(evt) {
       evt.stopPropagation();
-    })
+    });
 
     // when model notifys guest was added, add to view
     this._model.guestAdded.attach(function(name) {

@@ -1,3 +1,5 @@
+const path = require('path');
+
 const gulp = require('gulp');
 const plumber = require('gulp-plumber');
 
@@ -55,9 +57,9 @@ gulp.task('html', () => {
 });
 
 gulp.task('watch', () => {
-  gulp.watch('./src/js/*.js', ['js']);
-  gulp.watch('./src/styl/*.styl', ['css']);
-  gulp.watch('./src/html/*.html', ['html']);
+  gulp.watch('./src/js/**/*.js', ['js']);
+  gulp.watch('./src/styl/**/*.styl', ['css']);
+  gulp.watch('./src/html/**/*.html', ['html']);
 });
 
 gulp.task('server', () => {

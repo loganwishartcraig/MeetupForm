@@ -24,6 +24,8 @@ class UserService {
     constructor(user) {
       if (user === undefined) {
         let cachedProfile = localStorage.getItem('userProfile');
+        console.warn(cachedProfile);
+
         if (cachedProfile !== null) {
           this._user = JSON.parse(cachedProfile);
         } else {
@@ -42,7 +44,9 @@ class UserService {
     }
 
     updateCache() {
+      console.warn('caching', this._user);
       localStorage.setItem('userProfile', JSON.stringify(this._user));
+      console.warn(localStorage.getItem('userProfile'));
     }
 
     clearUserProfile() {
@@ -71,37 +75,7 @@ class UserService {
   
     // returns fake events for testing
     getEvents() {
-      let e1 = {
-        eventEnd: "2016-06-16",
-        eventHost: "Logan Wishart-Craig",
-        eventLocation: "af",
-        eventName: "Forts ;D",
-        eventStart: "2016-06-07",
-        eventType: "w"
-      };
-
-      let e2 = {
-        eventEnd: "2016-06-16",
-        eventHost: "George Furlong",
-        eventLocation: "af",
-        eventName: "Laser tag",
-        eventStart: "2016-06-07",
-        eventType: "w"
-      };
-
-      let e3 = {
-        eventEnd: "2016-06-16",
-        eventHost: "Marcus Piewton",
-        eventLocation: "af",
-        eventName: "Tea and shots",
-        eventStart: "2016-06-07",
-        eventType: "w"
-      }; 
-
-
-      let fakeEvents = [e1, e2, e3];
-
-      return fakeEvents;
+      return (this.hasUser()) ? this._user.events : [];
     }
 
   } 

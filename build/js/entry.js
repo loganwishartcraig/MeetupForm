@@ -42,7 +42,7 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	__webpack_require__(1);
 	__webpack_require__(9);
@@ -51,20 +51,20 @@
 	__webpack_require__(5);
 	__webpack_require__(10);
 	__webpack_require__(13);
-	__webpack_require__(3);
 	__webpack_require__(6);
 	__webpack_require__(4);
 	__webpack_require__(8);
 	__webpack_require__(16);
+	__webpack_require__(3);
 	__webpack_require__(7);
 	__webpack_require__(11);
 	__webpack_require__(14);
 	module.exports = __webpack_require__(2);
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -103,7 +103,7 @@
 	// updated by a 'formSubmitted' event callback on the event form.
 
 
-	// Controller, view, and model for forms.
+	// Controller, view, and model for forms. 
 	// Model holds the data and performs validation. Notifies on changes
 	// View displays data and validation status. Upates on changes
 	// Controller handles input keypresses and form changes. Passes data to model on changes
@@ -111,89 +111,87 @@
 
 	// page view is used to toggle registration state.
 	// css displays relevant form based on the classes this alters
-
-
 	document.addEventListener('DOMContentLoaded', function () {
 
-	  // initiate page view and bind to body. 
-	  var pageView = new _PageView.PageView('body');
+	    // initiate page view and bind to body.  
+	    var pageView = new _PageView.PageView('body');
 
-	  // initiate user service and determine if user already exists
-	  var userService = new _UserService.UserService(),
-	      userIsCached = userService.hasUser();
+	    // initiate user service and determine if user already exists
+	    var userService = new _UserService.UserService(),
+	        userIsCached = userService.hasUser();
 
-	  // toggle form visibility based on user existing
-	  pageView.toggleRegistration(userIsCached);
+	    // toggle form visibility based on user existing 
+	    pageView.toggleRegistration(userIsCached);
 
-	  // ? question - would this be better handled with routes and server side auth?
-	  if (!userIsCached) {
+	    // ? question - would this be better handled with routes and server side auth?
+	    if (!userIsCached) {
 
-	    // instantiate the registration form
-	    var regFormModel = new _FormModel.FormModel(_Validators.stdValidators),
-	        regFormView = new _FormView.FormView(regFormModel, '#regForm'),
-	        regFormController = new _FormController.FormController(regFormModel, regFormView);
+	        // instantiate the registration form
+	        var regFormModel = new _FormModel.FormModel(_Validators.stdValidators),
+	            regFormView = new _FormView.FormView(regFormModel, '#regForm'),
+	            regFormController = new _FormController.FormController(regFormModel, regFormView);
 
-	    // instantiate the password helper & bind to input/output nodes
-	    var passwordController = new _PasswordController.PasswordController('#password', '.pw-requirements', _Validators.passwordValidators);
+	        // instantiate the password helper & bind to input/output nodes
+	        var passwordController = new _PasswordController.PasswordController('#password', '.pw-requirements', _Validators.passwordValidators);
 
-	    // on successful form submission, update the user service profile
-	    // and re-check what form to display
-	    // ? question - handled better by the controller? Where should ajax calls be made to the server?
-	    regFormModel.formSubmitted.attach(function (user) {
-	      console.log('submitted user data!', user);
-	      userService.createUser(user);
-	      pageView.toggleRegistration(userService.hasUser());
+	        // on successful form submission, update the user service profile
+	        // and re-check what form to display
+	        // ? question - handled better by the controller? Where should ajax calls be made to the server?
+	        regFormModel.formSubmitted.attach(function (user) {
+	            console.log('submitted user data!', user);
+	            userService.createUser(user);
+	            pageView.toggleRegistration(userService.hasUser());
+	        });
+	    }
+
+	    // instantiate the meetup form
+	    var meetupFormModel = new _FormModel.FormModel(_Validators.stdValidators),
+	        meetupFormView = new _FormView.FormView(meetupFormModel, '#meetupForm'),
+	        meetupFormController = new _FormController.FormController(meetupFormModel, meetupFormView);
+
+	    // instantiate the guest list component
+	    var guestListModel = new _GuestListModel.GuestListModel(),
+	        guestListView = new _GuestListView.GuestListView(guestListModel, '.event-invites'),
+	        guestListController = new _GuestListController.GuestListController(guestListModel, guestListView);
+
+	    // inject the 'eventGuestList' validation function.
+	    // needed as validation for 'guestlist' requires querying it's model
+	    meetupFormModel.setCustomValidator('eventGuestList', guestListModel.isValid.bind(guestListModel));
+
+	    // custom date compare function to validate events end date
+	    // pulled from view to allow for comparing partial (invalid) dates
+	    meetupFormModel.setCustomValidator('eventEnd', function () {
+	        var start = meetupFormView.getInput('eventStart'),
+	            end = meetupFormView.getInput('eventEnd');
+	        return _Validators.dateValidator.lessThan(start, end);
 	    });
-	  }
 
-	  // instantiate the meetup form
-	  var meetupFormModel = new _FormModel.FormModel(_Validators.stdValidators),
-	      meetupFormView = new _FormView.FormView(meetupFormModel, '#meetupForm'),
-	      meetupFormController = new _FormController.FormController(meetupFormModel, meetupFormView);
+	    // on guestlist change, update the meetup form model and revalidate
+	    guestListModel.guestListChanged.attach(function (guests) {
+	        console.log('guest list chagned hanlder: ', guests);
+	        meetupFormModel.setItem('eventGuestList', guests, 'eventGuestList');
+	        console.log(meetupFormModel._store);
+	        meetupFormController.checkFormValidity();
+	    });
 
-	  // instantiate the guest list component
-	  var guestListModel = new _GuestListModel.GuestListModel(),
-	      guestListView = new _GuestListView.GuestListView(guestListModel, '.event-invites'),
-	      guestListController = new _GuestListController.GuestListController(guestListModel, guestListView);
+	    // instantiate the meetup list component. Load any pre-existing meetups
+	    // to the meetup model
+	    var meetupListModel = new _MeetupListModel.MeetupListModel(userService.getEvents()),
+	        meetupListView = new _MeetupListView.MeetupListView(meetupListModel, '.meetup-list');
 
-	  // inject the 'eventGuestList' validation function.
-	  // needed as validation for 'guestlist' requires querying it's model
-	  meetupFormModel.setCustomValidator('eventGuestList', guestListModel.isValid.bind(guestListModel));
+	    // on event form submission, add meetup item & reset form
+	    meetupFormModel.formSubmitted.attach(function (event) {
+	        console.log('submitted event data!', event);
+	        meetupListModel.addEvent(event);
+	        userService.addEvent(event);
 
-	  // custom date compare function to validate events end date
-	  // pulled from view to allow for comparing partial (invalid) dates
-	  meetupFormModel.setCustomValidator('eventEnd', function () {
-	    var start = meetupFormView.getInput('eventStart'),
-	        end = meetupFormView.getInput('eventEnd');
-	    return _Validators.dateValidator.lessThan(start, end);
-	  });
-
-	  // on guestlist change, update the meetup form model and revalidate
-	  guestListModel.guestListChanged.attach(function (guests) {
-	    console.log('guest list chagned hanlder: ', guests);
-	    meetupFormModel.setItem('eventGuestList', guests, 'eventGuestList');
-	    console.log(meetupFormModel._store);
-	    meetupFormController.checkFormValidity();
-	  });
-
-	  // instantiate the meetup list component. Load any pre-existing meetups
-	  // to the meetup model
-	  var meetupListModel = new _MeetupListModel.MeetupListModel(userService.getEvents()),
-	      meetupListView = new _MeetupListView.MeetupListView(meetupListModel, '.meetup-list');
-
-	  // on event form submission, add meetup item & reset form
-	  meetupFormModel.formSubmitted.attach(function (event) {
-	    console.log('submitted event data!', event);
-	    meetupListModel.addEvent(event);
-	    userService.addEvent(event);
-
-	    // ? question - should this be one reset?
-	    guestListController.reset();
-	    meetupFormController.reset();
-	  });
+	        // ? question - should this be one reset?
+	        guestListController.reset();
+	        meetupFormController.reset();
+	    });
 	});
 
-	// ? question - should the user be stored here? In the controller?
+	// ? question - should the user be stored here? In the controller? 
 	// nowhere & just handled in an event callback in 'entry.js'?
 	// should user service listen for 'eventAdded'?
 
@@ -203,15 +201,15 @@
 
 	// Sub-component of the 'event' form. Similar data flow to the form mvc.
 	// Model stores guestlist and validation. The data is injected into the 'event' form.
-	// ? question - should this be integrated into an extended 'form' class?
+	// ? question - should this be integrated into an extended 'form' class? 
 
 
 	// user service is used to interface with the user object.
 	// pulls, stores, and updates user data
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -262,9 +260,9 @@
 
 	exports.PageView = PageView;
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -301,12 +299,13 @@
 	  // if no user is passed at initalization,
 	  // query local storage for cached object
 	  // complete user object would not be stored in production 'i.e. no "password" field.'
-
 	  function UserService(user) {
 	    _classCallCheck(this, UserService);
 
 	    if (user === undefined) {
 	      var cachedProfile = localStorage.getItem('userProfile');
+	      console.warn(cachedProfile);
+
 	      if (cachedProfile !== null) {
 	        this._user = JSON.parse(cachedProfile);
 	      } else {
@@ -329,7 +328,9 @@
 	  }, {
 	    key: 'updateCache',
 	    value: function updateCache() {
+	      console.warn('caching', this._user);
 	      localStorage.setItem('userProfile', JSON.stringify(this._user));
+	      console.warn(localStorage.getItem('userProfile'));
 	    }
 	  }, {
 	    key: 'clearUserProfile',
@@ -367,36 +368,7 @@
 	  }, {
 	    key: 'getEvents',
 	    value: function getEvents() {
-	      var e1 = {
-	        eventEnd: "2016-06-16",
-	        eventHost: "Logan Wishart-Craig",
-	        eventLocation: "af",
-	        eventName: "Forts ;D",
-	        eventStart: "2016-06-07",
-	        eventType: "w"
-	      };
-
-	      var e2 = {
-	        eventEnd: "2016-06-16",
-	        eventHost: "George Furlong",
-	        eventLocation: "af",
-	        eventName: "Laser tag",
-	        eventStart: "2016-06-07",
-	        eventType: "w"
-	      };
-
-	      var e3 = {
-	        eventEnd: "2016-06-16",
-	        eventHost: "Marcus Piewton",
-	        eventLocation: "af",
-	        eventName: "Tea and shots",
-	        eventStart: "2016-06-07",
-	        eventType: "w"
-	      };
-
-	      var fakeEvents = [e1, e2, e3];
-
-	      return fakeEvents;
+	      return this.hasUser() ? this._user.events : [];
 	    }
 	  }]);
 
@@ -405,30 +377,30 @@
 
 	exports.UserService = UserService;
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
 
 	// used to simulate AJAX calls via promises
 	var fakeAJAXCall = function fakeAJAXCall(data) {
-	    return new Promise(function (res, rej) {
+	  return new Promise(function (res, rej) {
 
-	        res(data);
-	    });
+	    res(data);
+	  });
 	};
 
 	exports.fakeAJAXCall = fakeAJAXCall;
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -449,15 +421,15 @@
 	// listeners of various events. Expects an object 'validationMap',
 	// where keys are values defined in the form input 'data-validation' attributes
 	// and values are corresponding validation methods.
-	// Optional object 'store' defines pre-existing model key value pairs
+	// Optional object 'store' defines pre-existing model key value pairs 
 	// Optional object 'required' defines a known required input map, where
 	// keys are form input names and values are keys to 'validationMap'
 
 	var FormModel = function () {
 	  function FormModel() {
-	    var validationMap = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	    var store = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-	    var required = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+	    var validationMap = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	    var store = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	    var required = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
 	    _classCallCheck(this, FormModel);
 
@@ -620,9 +592,9 @@
 
 	exports.FormModel = FormModel;
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 
@@ -636,10 +608,9 @@
 
 	// simple Event class (not to be confused to events in reference to meetup events)
 
-	// allows a 'sender' to notify 'listeners'.
+	// allows a 'sender' to notify 'listeners'. 
 	// On notification, all listening functions are executed, and arguments
 	// are passed into the callback
-
 	var Event = function () {
 	  function Event(sender) {
 	    _classCallCheck(this, Event);
@@ -669,9 +640,9 @@
 
 	exports.Event = Event;
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
@@ -758,7 +729,7 @@
 	    }.bind(this));
 	  }
 
-	  // called on 'keypress' & 'change'. If target is input, pull data from
+	  // called on 'keypress' & 'change'. If target is input, pull data from 
 	  // node, notify listeners of an input change, passing input data.
 
 
@@ -855,9 +826,9 @@
 
 	exports.FormView = FormView;
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 
@@ -866,6 +837,7 @@
 	});
 	// would be expanded to something like 'nodeOps.js'
 	// that could include other common node functions
+
 
 	// run a callback on each node in a list
 	function forEachNode(nodeList, cb) {
@@ -876,9 +848,9 @@
 
 	exports.forEachNode = forEachNode;
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -890,7 +862,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	// Controller for forms will notify the model of any
+	// Controller for forms will notify the model of any 
 	// updates to the view.
 	// View will emmit input changes, controller passes data
 	// to model & the model validates and stores. Model notifies if the data
@@ -905,7 +877,7 @@
 	    this._view = view;
 
 	    // Grab 'required' inputs from the view and set in the model
-	    // for validation purposes
+	    // for validation purposes 
 	    // For some reason, I want the 'required' flag to stay in the markup and not have to be pre-defined in the model? Should it be the other way around?
 	    this._model.setRequired(this._view.getRequired());
 
@@ -973,9 +945,9 @@
 
 	exports.FormController = FormController;
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -992,12 +964,11 @@
 
 	// Model used to store the guest list when creating an event.
 	// Data will be passed to the event form.
-	// Notifies listeners of model events.
+	// Notifies listeners of model events. 
 	// Can be passed 'guestList', an array of strings as a predefined guest list
-
 	var GuestListModel = function () {
 	  function GuestListModel() {
-	    var guestList = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+	    var guestList = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
 	    _classCallCheck(this, GuestListModel);
 
@@ -1057,9 +1028,9 @@
 
 	exports.GuestListModel = GuestListModel;
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -1076,7 +1047,7 @@
 
 	// Guest list view handles displaying, adding, and removing
 	// guest list items in the 'event' form.
-	// Will notify listeners of button clicks & pass input information
+	// Will notify listeners of button clicks & pass input information 
 	// root node should have as children/grandchildren an input to pull names from,
 	// a ul to output names to, and a button[type=button] to trigger event
 
@@ -1211,9 +1182,9 @@
 
 	exports.GuestListView = GuestListView;
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 
@@ -1226,7 +1197,7 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	// Controller used to manage guest list view and model.
-	// View will notify button presses and pass a guest name.
+	// View will notify button presses and pass a guest name. 
 	// Controller passes data to model & model notifies of change.
 	// Controller also handles resets.
 
@@ -1260,9 +1231,9 @@
 
 	exports.GuestListController = GuestListController;
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -1280,9 +1251,10 @@
 	// Model used to store and add meetup events
 	// Can be passed 'store', an array of predefined meetup objects.
 
+
 	var MeetupListModel = function () {
 	  function MeetupListModel() {
-	    var store = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+	    var store = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
 	    _classCallCheck(this, MeetupListModel);
 
@@ -1316,9 +1288,9 @@
 
 	exports.MeetupListModel = MeetupListModel;
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -1410,14 +1382,14 @@
 
 	exports.MeetupListView = MeetupListView;
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	exports.PasswordController = undefined;
 
@@ -1435,94 +1407,95 @@
 	// An object 'validationMap', where keys are the values corresponding to the help text's 'data-requirement' attribute, and values are functions defining the validation method
 	// Does not need to inject data into form model, as the individual validation tests here are performed in the form model as well.
 
+
 	var PasswordController = function () {
-	    function PasswordController(passwordInput, reqContainer) {
-	        var validationMap = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+	  function PasswordController(passwordInput, reqContainer) {
+	    var validationMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-	        _classCallCheck(this, PasswordController);
+	    _classCallCheck(this, PasswordController);
 
-	        // grab input and listen for keyups
-	        this._passwordInput = document.querySelector(passwordInput);
-	        this._passwordInput.addEventListener('keyup', this.handleKeyup.bind(this));
+	    // grab input and listen for keyups
+	    this._passwordInput = document.querySelector(passwordInput);
+	    this._passwordInput.addEventListener('keyup', this.handleKeyup.bind(this));
 
-	        // pull references to help text nodes and index by requirement
-	        this._reqMap = {};
-	        (0, _forEachNode.forEachNode)(document.querySelectorAll(reqContainer + ' li[data-requirement]'), function (node) {
-	            var key = node.getAttribute('data-requirement');
-	            this._reqMap[key] = node;
-	        }.bind(this));
+	    // pull references to help text nodes and index by requirement
+	    this._reqMap = {};
+	    (0, _forEachNode.forEachNode)(document.querySelectorAll(reqContainer + ' li[data-requirement]'), function (node) {
+	      var key = node.getAttribute('data-requirement');
+	      this._reqMap[key] = node;
+	    }.bind(this));
 
-	        this._validationMap = validationMap;
+	    this._validationMap = validationMap;
+	  }
+
+	  // expects a string 'password' to be validated
+	  // and a string 'requirement' to indicate the corresponding requirement
+
+
+	  _createClass(PasswordController, [{
+	    key: 'validate',
+	    value: function validate(password, requirement) {
+
+	      // store reference to relevant help text node
+	      var messageToMark = this._reqMap[requirement];
+
+	      // if no reference to node exists, warn and return
+	      if (messageToMark === undefined) {
+	        console.warn('Password requirement message map doesn\'t have an <li> for ' + requirement + '.');
+	        return;
+	      }
+
+	      // if no validation method is defined for the requirement, warn, reutrn and
+	      // mark help text node unmet.
+	      // otherwise, mark help text node based on validation result
+	      if (!this._validationMap[requirement]) {
+	        console.warn('Password validation map doesn\'t have a test for \'' + requirement + '\'. Assuming invalid.');
+	        return this.markUnmet(messageToMark);
+	      }
+	      if (this._validationMap[requirement](password)) this.markMet(messageToMark);else this.markUnmet(messageToMark);
 	    }
 
-	    // expects a string 'password' to be validated
-	    // and a string 'requirement' to indicate the corresponding requirement
+	    // toggle a nodes state to met via classes
 
+	  }, {
+	    key: 'markMet',
+	    value: function markMet(node) {
+	      node.classList.remove('unmet');
+	      if (!node.classList.contains('met')) node.classList.add('met');
+	    }
 
-	    _createClass(PasswordController, [{
-	        key: 'validate',
-	        value: function validate(password, requirement) {
+	    // toggle a nodes state to unmet via classes
 
-	            // store reference to relevant help text node
-	            var messageToMark = this._reqMap[requirement];
+	  }, {
+	    key: 'markUnmet',
+	    value: function markUnmet(node) {
+	      node.classList.remove('met');
+	      if (!node.classList.contains('unmet')) node.classList.add('unmet');
+	    }
 
-	            // if no reference to node exists, warn and return
-	            if (messageToMark === undefined) {
-	                console.warn('Password requirement message map doesn\'t have an <li> for ' + requirement + '.');
-	                return;
-	            }
+	    // on input keyup, grab new value & validate against all requirements
 
-	            // if no validation method is defined for the requirement, warn, reutrn and
-	            // mark help text node unmet.
-	            // otherwise, mark help text node based on validation result
-	            if (!this._validationMap[requirement]) {
-	                console.warn('Password validation map doesn\'t have a test for \'' + requirement + '\'. Assuming invalid.');
-	                return this.markUnmet(messageToMark);
-	            }
-	            if (this._validationMap[requirement](password)) this.markMet(messageToMark);else this.markUnmet(messageToMark);
-	        }
+	  }, {
+	    key: 'handleKeyup',
+	    value: function handleKeyup(evt) {
+	      var _this = this;
 
-	        // toggle a nodes state to met via classes
+	      var password = evt.target.value;
 
-	    }, {
-	        key: 'markMet',
-	        value: function markMet(node) {
-	            node.classList.remove('unmet');
-	            if (!node.classList.contains('met')) node.classList.add('met');
-	        }
+	      Object.keys(this._reqMap).forEach(function (req) {
+	        _this.validate(password, req);
+	      });
+	    }
+	  }]);
 
-	        // toggle a nodes state to unmet via classes
-
-	    }, {
-	        key: 'markUnmet',
-	        value: function markUnmet(node) {
-	            node.classList.remove('met');
-	            if (!node.classList.contains('unmet')) node.classList.add('unmet');
-	        }
-
-	        // on input keyup, grab new value & validate against all requirements
-
-	    }, {
-	        key: 'handleKeyup',
-	        value: function handleKeyup(evt) {
-	            var _this = this;
-
-	            var password = evt.target.value;
-
-	            Object.keys(this._reqMap).forEach(function (req) {
-	                _this.validate(password, req);
-	            });
-	        }
-	    }]);
-
-	    return PasswordController;
+	  return PasswordController;
 	}();
 
 	exports.PasswordController = PasswordController;
 
-/***/ },
+/***/ }),
 /* 16 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -1605,5 +1578,5 @@
 	exports.passwordValidators = passwordValidators;
 	exports.dateValidator = dateValidator;
 
-/***/ }
+/***/ })
 /******/ ]);
